@@ -119,3 +119,38 @@ water_parameters_clean <- water_parameters |>
          elevation_code = fct_relevel(elevation_code,
                                       "0", "1", "2", "3", "4", "5", "6"))
 ```
+
+
+# Joining data frames
+
+```{r}
+#| label: joining-parameters-and-metadata
+
+# join metadata and water parameters
+water_quality <- full_join(
+  # left
+  x = metadata_clean, 
+  # right
+  y = water_parameters_clean,
+  # shared column
+  by = c("global_id" = "parent_global_id")) |> 
+  # stop and look at colnames(water_quality) before continuing
+  # selecting relevant columns
+  select(
+    # information about observation
+    global_id, monitoring_datetime, time_of_wq_measurement, 
+    monitor_name, weather, site_name, other_site_name, site_full, x, y, 
+    
+    # water information
+    water_surface_elevation, flow, notes, 
+    
+    # measurement information
+    elevation_code, do_mg_l, do_percent_sat, conductivity_u_s_cm,
+    salinity_ppt, temperature_c) |> 
+  # extract date from monitoring datetime
+  mutate(date = date(monitoring_datetime)) |> 
+  # move date column to appear to the right of monitoring_datetime
+  relocate(date, .after = monitoring_datetime) |> 
+  # exclude monitoring_datetime
+  select(!monitoring_datetime)
+```
