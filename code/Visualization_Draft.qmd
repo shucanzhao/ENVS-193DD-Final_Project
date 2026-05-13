@@ -4,9 +4,9 @@ format: pdf
 ---
 
 
-## 1. Set up
+# 1. Set up
 
-# Packages
+## Packages
 
 ```{r}
 #| label: packages
@@ -22,7 +22,7 @@ library(janitor)
 library(here)
 ```
 
-# Data
+## Data
 
 ```{r}
 #| label: data
@@ -36,4 +36,86 @@ metadata <- read_csv(here("data", "NCOS_YSI_Water_Quality_Monitoring_0.csv"))
 
 # water quality parameter measurements
 water_parameters <- read_csv(here("data", "YSI_Data_Begin_1.csv"))
+```
+
+
+## Cleaning weather
+
+```{r}
+#| label: cleaning-weather-data
+
+# creating new object from weather
+weather_clean <- weather |> 
+  # cleaning column names
+  clean_names() |> 
+  # making sure date is in POSIXct format
+  mutate(date = mdy(date)) |> 
+  # selecting columns of interest
+  select(date, prcp, tmax, tmin) |> 
+  # extracting month and year from date column
+  mutate(month = month(date),
+         year = year(date)) |> 
+  # assigning water year
+  mutate(wy = case_when(
+    # when month is October or later, assign value of year + 1
+    month >= 10 ~ year + 1,
+    # when month is September or earlier, assign value of existing year
+    .default = year))
+```
+
+## Cleaning metadata
+
+```{r}
+#| label: cleaning-metadata
+
+# creating new object from metadata
+metadata_clean <- metadata |> 
+  # cleaning column  names
+  clean_names() |> 
+  # excluding unnecessary columns
+  select(!c(object_id, creator, editor)) |> 
+  # making sure monitoring_date is in POSIXct format
+  mutate(monitoring_date = mdy_hms(monitoring_date)) |> 
+  # renaming monitoring datetime column to reflect values
+  rename(monitoring_datetime = monitoring_date) |> 
+  # creating new columns for month and year of observations
+  mutate(month = month(monitoring_datetime),
+         year = year(monitoring_datetime)) |> 
+  # assigning water year
+  mutate(wy = case_when(
+    # when month is October or later, assign value of year + 1
+    month >= 10 ~ year + 1,
+    # when month is September or earlier, assign value of existing year
+    .default = year)) |> 
+  # create new column of full site name
+  mutate(site_full = case_when(
+    site_name == "east_channel" ~ "East Channel",
+    site_name == "phelps_bridge" ~ "Phelps Bridge",
+    site_name == "venoco_bridge" ~ "Venoco Bridge",
+    site_name == "other" ~ "Other"
+  ))
+```
+
+## Cleaning water parameters
+
+```{r}
+#| label: cleaning-water-parameter-data
+
+# creating new object from water_parameters
+water_parameters_clean <- water_parameters |> 
+  # cleaning object names
+  clean_names() |> 
+  # excluding unnecessary columns
+  select(!c(creator, editor)) |> 
+  # renaming columns
+  rename(elevation_code = depth_code) |> 
+  # replacing incorrect elevation code from 2021-07-16
+  mutate(elevation_code = case_when(
+    elevation_code == 10 ~ 1,
+    .default = elevation_code
+  )) |> 
+  # set factors
+  mutate(elevation_code = as_factor(elevation_code),
+         elevation_code = fct_relevel(elevation_code,
+                                      "0", "1", "2", "3", "4", "5", "6"))
 ```
