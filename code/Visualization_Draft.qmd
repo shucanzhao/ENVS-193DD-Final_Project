@@ -2,3 +2,38 @@
 title: "Visualization Draft"
 format: pdf
 ---
+
+
+## 1. Set up
+
+# Packages
+
+```{r}
+#| label: packages
+#| message: false
+
+# general use (data wrangling and plotting)
+library(tidyverse)
+
+# clean column names
+library(janitor)
+
+# file organization
+library(here)
+```
+
+# Data
+
+```{r}
+#| label: data
+#| message: false
+
+# weather data from NOAA weather station
+weather <- read_csv(here("data", "NOAA-weather-data.csv"))
+
+# water quality survey metadata
+metadata <- read_csv(here("data", "NCOS_YSI_Water_Quality_Monitoring_0.csv"))
+
+# water quality parameter measurements
+water_parameters <- read_csv(here("data", "YSI_Data_Begin_1.csv"))
+```
