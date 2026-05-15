@@ -1,0 +1,185 @@
+---
+title: "Visualization Draft"
+format: pdf
+---
+
+
+# 1. Set up
+
+## Packages
+
+```{r}
+#| label: packages
+#| message: false
+
+# general use (data wrangling and plotting)
+library(tidyverse)
+
+# clean column names
+library(janitor)
+
+# file organization
+library(here)
+```
+
+## Data
+
+```{r}
+#| label: data
+#| message: false
+
+# weather data from NOAA weather station
+weather <- read_csv(here("data", "NOAA-weather-data.csv"))
+
+# water quality survey metadata
+metadata <- read_csv(here("data", "NCOS_YSI_Water_Quality_Monitoring_0.csv"))
+
+# water quality parameter measurements
+water_parameters <- read_csv(here("data", "YSI_Data_Begin_1.csv"))
+```
+
+
+## Cleaning weather
+
+```{r}
+#| label: cleaning-weather-data
+
+# creating new object from weather
+weather_clean <- weather |> 
+  # cleaning column names
+  clean_names() |> 
+  # making sure date is in POSIXct format
+  mutate(date = mdy(date)) |> 
+  # selecting columns of interest
+  select(date, prcp, tmax, tmin) |> 
+  # extracting month and year from date column
+  mutate(month = month(date),
+         year = year(date)) |> 
+  # assigning water year
+  mutate(wy = case_when(
+    # when month is October or later, assign value of year + 1
+    month >= 10 ~ year + 1,
+    # when month is September or earlier, assign value of existing year
+    .default = year))
+```
+
+## Cleaning metadata
+
+```{r}
+#| label: cleaning-metadata
+
+# creating new object from metadata
+metadata_clean <- metadata |> 
+  # cleaning column  names
+  clean_names() |> 
+  # excluding unnecessary columns
+  select(!c(object_id, creator, editor)) |> 
+  # making sure monitoring_date is in POSIXct format
+  mutate(monitoring_date = mdy_hms(monitoring_date)) |> 
+  # renaming monitoring datetime column to reflect values
+  rename(monitoring_datetime = monitoring_date) |> 
+  # creating new columns for month and year of observations
+  mutate(month = month(monitoring_datetime),
+         year = year(monitoring_datetime)) |> 
+  # assigning water year
+  mutate(wy = case_when(
+    # when month is October or later, assign value of year + 1
+    month >= 10 ~ year + 1,
+    # when month is September or earlier, assign value of existing year
+    .default = year)) |> 
+  # create new column of full site name
+  mutate(site_full = case_when(
+    site_name == "east_channel" ~ "East Channel",
+    site_name == "phelps_bridge" ~ "Phelps Bridge",
+    site_name == "venoco_bridge" ~ "Venoco Bridge",
+    site_name == "other" ~ "Other"
+  ))
+```
+
+## Cleaning water parameters
+
+```{r}
+#| label: cleaning-water-parameter-data
+
+# creating new object from water_parameters
+water_parameters_clean <- water_parameters |> 
+  # cleaning object names
+  clean_names() |> 
+  # excluding unnecessary columns
+  select(!c(creator, editor)) |> 
+  # renaming columns
+  rename(elevation_code = depth_code) |> 
+  # replacing incorrect elevation code from 2021-07-16
+  mutate(elevation_code = case_when(
+    elevation_code == 10 ~ 1,
+    .default = elevation_code
+  )) |> 
+  # set factors
+  mutate(elevation_code = as_factor(elevation_code),
+         elevation_code = fct_relevel(elevation_code,
+                                      "0", "1", "2", "3", "4", "5", "6"))
+```
+
+
+# Joining data frames
+
+```{r}
+#| label: joining-parameters-and-metadata
+
+# join metadata and water parameters
+water_quality <- full_join(
+  # left
+  x = metadata_clean, 
+  # right
+  y = water_parameters_clean,
+  # shared column
+  by = c("global_id" = "parent_global_id")) |> 
+  # stop and look at colnames(water_quality) before continuing
+  # selecting relevant columns
+  select(
+    # information about observation
+    global_id, monitoring_datetime, time_of_wq_measurement, 
+    monitor_name, weather, site_name, other_site_name, site_full, x, y, 
+    
+    # water information
+    water_surface_elevation, flow, notes, 
+    
+    # measurement information
+    elevation_code, do_mg_l, do_percent_sat, conductivity_u_s_cm,
+    salinity_ppt, temperature_c) |> 
+  # extract date from monitoring datetime
+  mutate(date = date(monitoring_datetime)) |> 
+  # move date column to appear to the right of monitoring_datetime
+  relocate(date, .after = monitoring_datetime) |> 
+  # exclude monitoring_datetime
+  select(!monitoring_datetime)
+```
+
+
+# Figure 1
+
+## Plan
+Presenting how dissolved oxygen (DO) differ across sites
+
+- x-axis: different site names
+
+- y-axis: DO
+
+- `geom_jitter`: jitter to represent individual DO measurements
+
+- red point: mean DO for each site
+
+# Figure 2
+
+## Plan
+Presenting how dissolved oxygen (DO) varies across elevations at each site.
+
+- x-axis: DO
+
+- y-axis: Elevation code
+
+- `geom_point`: visualize individual observations
+
+- `geom_jitter`: jitter to represent individual DO measurements
+
+# Figure 3
