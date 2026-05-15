@@ -19,7 +19,6 @@ The project currently focuses on three main NCOS monitoring sites:
 ## Repository structure
 
 ```
-.
 ├── README.md
 ├── code
 │   ├── Visualization_Draft.qmd
