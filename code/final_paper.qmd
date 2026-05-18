@@ -1,0 +1,19 @@
+---
+title: "final paper"
+author: "Phoebe Dupa, Rebecca Martinez, and Shucan Zhao"
+date: "Spring 2026"
+format:
+  pdf: 
+    fig-width: 10
+    fig-height: 8
+    include-in-header:
+      text: |
+        \usepackage{fvextra}
+        \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
+editor: source
+execute: 
+  echo: false
+  message: false
+  warning: false
+---
+
