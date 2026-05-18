@@ -1,7 +1,6 @@
 ---
 title: "Visualization Draft"
 author: "Phoebe Dupa, Rebecca Martinez, and Shucan Zhao"
-date: "Spring 2026"
 format:
   pdf: 
     fig-width: 10
