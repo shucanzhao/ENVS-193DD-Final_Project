@@ -10,10 +10,6 @@ format:
         \usepackage{fvextra}
         \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
 editor: source
-execute: 
-  echo: false
-  message: false
-  warning: false
 ---
 
 
@@ -169,30 +165,115 @@ water_quality <- full_join(
 ```
 
 
+# Filtering joined data
+
+```{r}
+#| label: filtering-water-quality
+
+# creating filtered object for plotting and summaries
+do_filtered <- water_quality |> 
+  # keep only the three main NCOS sites
+  filter(site_full %in% c("East Channel", "Phelps Bridge", "Venoco Bridge")) |> 
+  # remove missing DO values
+  filter(!is.na(do_mg_l)) |> 
+  # remove missing elevation codes
+  filter(!is.na(elevation_code)) |> 
+  # drop the unused "Other" level from site_full so it doesn't appear in plots
+  mutate(site_full = fct_drop(as_factor(site_full))) |> 
+  # order sites for consistent plotting (upstream -> downstream-ish)
+  mutate(site_full = fct_relevel(site_full,
+                                 "Phelps Bridge", "Venoco Bridge", "East Channel"))
+```
+
+
+# Summarizing dissolved oxygen
+
+## DO summary across sites
+
+```{r}
+#| label: do-site-summary
+
+# summary of DO by site (for Figure 1: median points across sites)
+do_site_summary <- do_filtered |> 
+  # group by site
+  group_by(site_full) |> 
+  # calculate summary statistics
+  summarize(
+    mean_do   = mean(do_mg_l, na.rm = TRUE),
+    median_do = median(do_mg_l, na.rm = TRUE),
+    sd_do     = sd(do_mg_l, na.rm = TRUE),
+    n         = n(),
+    .groups   = "drop"
+  )
+```
+
+## DO summary by elevation code and site
+
+```{r}
+#| label: do-elevation-summary
+
+# summary of DO by site and elevation code 
+# (for Figure 3: median points/lines across elevation codes)
+do_elevation_summary <- do_filtered |> 
+  # group by site and elevation code
+  group_by(site_full, elevation_code) |> 
+  # calculate summary statistics
+  summarize(
+    mean_do   = mean(do_mg_l, na.rm = TRUE),
+    median_do = median(do_mg_l, na.rm = TRUE),
+    n         = n(),
+    .groups   = "drop"
+  )
+```
+
+## Subset for Figure 2 (DO vs. temperature)
+
+```{r}
+#| label: do-temperature-subset
+
+# remove missing temperature values for the DO vs. temperature plot
+do_temp <- do_filtered |> 
+  filter(!is.na(temperature_c))
+```
+
+
 # Figure 1
 
-## Plan
-Presenting how dissolved oxygen (DO) differ across sites
+Dissolved oxygen across sites
 
-- x-axis: different site names
-
-- y-axis: DO
-
-- `geom_jitter`: jitter to represent individual DO measurements
-
-- red point: mean DO for each site
+- Start with `do_filtered`
+- Use `ggplot()` to create the plot
+- Use `aes(x = site_full, y = do_mg_l)` to map site and DO
+- Use `geom_jitter()` to show individual DO observations
+- Use `stat_summary(fun = median, geom = "point")` to show the median DO for each site
+- Use `labs()` to label the axes and title
+- Use `theme_bw()` for a clean theme
 
 # Figure 2
 
-## Plan
-Presenting how dissolved oxygen (DO) varies across elevations at each site.
+Dissolved oxygen and water temperature
 
-- x-axis: DO
-
-- y-axis: Elevation code
-
-- `geom_point`: visualize individual observations
-
-- `geom_jitter`: jitter to represent individual DO measurements
+- Start with `do_filtered`
+- Use `filter(!is.na(temperature_c))` to remove missing temperature values
+- Use `ggplot()` to create the plot
+- Use `aes(x = temperature_c, y = do_mg_l, color = elevation_code)` to map temperature, DO, and elevation code
+- Use `geom_point()` to show individual observations
+- Use `facet_wrap(~ site_full)` to compare sites
+- Use `labs()` to label the axes, title, and legend
+- Use `theme_bw()` for a clean theme
 
 # Figure 3
+
+Dissolved oxygen elevation profile
+
+- Start with `do_filtered`
+- Use `filter(!is.na(elevation_code))` to remove missing elevation values
+- Use `ggplot()` to create the plot
+- Use `aes(x = elevation_code, y = do_mg_l, group = 1)` to map elevation code and DO
+- Use `geom_point()` or `geom_jitter()` to show individual DO observations
+- Use `stat_summary(fun = median, geom = "point")` to show median DO at each elevation code
+- Use `stat_summary(fun = median, geom = "line")` to connect median DO values across elevation codes
+- Use `facet_wrap(~ site_full)` to compare sites
+- Use `coord_flip()` to make the plot look more like an elevation profile
+- Use `labs()` to label the axes and title
+- Use `theme_bw()` for a clean theme
