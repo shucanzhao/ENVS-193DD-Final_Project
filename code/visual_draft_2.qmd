@@ -663,6 +663,30 @@ figure_4
 Figure 4 shows DO and temperature separated by site and elevation code. Venoco Bridge has the clearest difference across elevation codes, with lower DO at elevation code 0 and higher DO at elevation codes 1 and 2. Phelps Bridge stays relatively low across positions, and East Channel looks more even across positions. DO values do not separate clearly by temperature.
 
 
+## Figures 5, 6: Time series exploration 
+
+```{r}
+
+figure_5 <- do_filtered |> 
+  ggplot(aes(x = date, y = do_mg_l, color = site_full)) +
+  geom_jitter()
+  
+figure_5
+
+figure_6 <- do_filtered |> 
+  ggplot(aes(x = date, y = temperature_c, color = site_full)) +
+  geom_jitter()
+
+figure_6
+  
+
+
+
+```
+
+
+
+
 # 7. Statistical analysis
 
 The statistical analyses test whether dissolved oxygen differs across sites, whether dissolved oxygen differs across elevation codes, and whether dissolved oxygen is related to temperature. Kruskal-Wallis tests are used for group comparisons with more than two groups. Pairwise Wilcoxon tests are used after significant Kruskal-Wallis results. Linear models are used for the temperature analyses.
