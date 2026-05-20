@@ -54,12 +54,6 @@ library(lubridate)
 - `visual_draft_2.qmd`: Rebecca’s updated visualization draft, including revised figures, interpretation, and statistical analysis
 - `visual_draft_2.pdf`: rendered PDF version of Rebecca’s updated visualization draft
 
-- `final_paper.qmd`: final project paper that combines the group’s background, methods, results, interpretation, and final discussion
-  - Phoebe: [add background/framing section description here]
-  - Rebecca: visualization and statistical analysis
-  - Shucan: code organization and final document support
-
-- `final_paper.pdf`: rendered PDF version of the final project paper
 
 ### Data files
 
@@ -85,8 +79,7 @@ The project includes:
 ## Rendered output
 
 - [Visualization draft](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/Visualization_Draft.pdf)
-- [Updated visualization draft](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/visual_draft_2.pdf)
-- [Final paper](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/final_paper.pdf)
+- [visual draft 2](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/visual_draft_2.pdf)
 
 ## Project roles
 
