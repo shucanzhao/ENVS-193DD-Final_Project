@@ -1,1 +1,104 @@
-# ENVS-193DD-Final_Project
+# ENVS 193DD Final Project
+
+**Spring 2026**
+
+## General information
+
+This repository contains the final project for the Water Warriors group in ENVS 193DD. The project analyzes dissolved oxygen patterns in NCOS water quality monitoring data.
+
+Group members:
+
+- Phoebe Dupa
+- Rebecca Martinez
+- Shucan Zhao
+
+The main questions are:
+
+- How does dissolved oxygen differ across sites?
+- How does dissolved oxygen differ across elevation-code measurement positions?
+- Is dissolved oxygen related to water temperature?
+
+To run the code in this repository, the following packages are needed:
+
+```r
+library(tidyverse)
+library(janitor)
+library(here)
+library(lubridate)
+```
+
+## Repository structure
+
+```text
+.
+├── README.md
+├── ENVS-193DD-Final_Project.Rproj
+├── code
+│   ├── final_paper.pdf
+│   ├── final_paper.qmd
+│   ├── visual_draft_2.pdf
+│   ├── visual_draft_2.qmd
+│   ├── Visualization_Draft.pdf
+│   └── Visualization_Draft.qmd
+└── data
+    ├── NCOS_YSI_Water_Quality_Monitoring_0.csv
+    ├── NOAA-weather-data.csv
+    └── YSI_Data_Begin_1.csv
+```
+
+### Code and output files
+
+- `Visualization_Draft.qmd`: Shucan’s visualization draft, including code, figures, and written interpretation
+- `Visualization_Draft.pdf`: rendered PDF version of Shucan’s visualization draft
+
+- `visual_draft_2.qmd`: Rebecca’s updated visualization draft, including revised figures, interpretation, and statistical analysis
+- `visual_draft_2.pdf`: rendered PDF version of Rebecca’s updated visualization draft
+
+- `final_paper.qmd`: final project paper that combines the group’s background, methods, results, interpretation, and final discussion
+  - Phoebe: [add background/framing section description here]
+  - Rebecca: visualization and statistical analysis
+  - Shucan: code organization and final document support
+
+- `final_paper.pdf`: rendered PDF version of the final project paper
+
+### Data files
+
+The project uses three datasets:
+
+- `NCOS_YSI_Water_Quality_Monitoring_0.csv`: metadata for each water quality survey, including site name, monitoring date, weather notes, and location information
+- `YSI_Data_Begin_1.csv`: water quality measurements collected during each survey, including dissolved oxygen, temperature, salinity, conductivity, and elevation code
+- `NOAA-weather-data.csv`: daily weather data, including precipitation, maximum temperature, and minimum temperature
+
+## Project workflow
+
+The project includes:
+
+- cleaning the weather, metadata, and water parameter datasets
+- joining metadata and water quality measurements by survey ID
+- joining weather data by date
+- filtering to the three main NCOS sites, 2024 and 2025 water years, and elevation codes 0–2
+- summarizing dissolved oxygen by site and elevation code
+- visualizing dissolved oxygen across sites, elevation codes, and temperature
+- testing group differences with Kruskal-Wallis and pairwise Wilcoxon tests
+- testing temperature relationships with linear models
+
+## Rendered output
+
+- [Visualization draft](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/Visualization_Draft.pdf)
+- [Updated visualization draft](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/visual_draft_2.pdf)
+- [Final paper](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/final_paper.pdf)
+
+## Project roles
+
+- Natural history/framing director: Phoebe Dupa
+- Stats and visualization director: Rebecca Martinez
+- GitHub/code director: Shucan Zhao
+
+## Elective
+
+The group plans to create a visual model using three clear containers to represent the three sites. Layers of material and clear or blue marbles will be used to represent dissolved oxygen stratification at each site.
+
+## Repository links
+
+- [Final project repository](https://github.com/shucanzhao/ENVS-193DD-Final_Project)
+- [Project proposal repository](https://github.com/shucanzhao/project-proposal)
