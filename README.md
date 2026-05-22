@@ -97,3 +97,4 @@ The cylinder containers and beads have already been purchased. Once the final vi
 
 - [Final project repository](https://github.com/shucanzhao/ENVS-193DD-Final_Project)
 - [Project proposal repository](https://github.com/shucanzhao/project-proposal)
+- [Literature Dissection](https://github.com/shucanzhao/literature-dissection)
