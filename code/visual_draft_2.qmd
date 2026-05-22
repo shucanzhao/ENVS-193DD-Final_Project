@@ -663,28 +663,105 @@ figure_4
 Figure 4 shows DO and temperature separated by site and elevation code. Venoco Bridge has the clearest difference across elevation codes, with lower DO at elevation code 0 and higher DO at elevation codes 1 and 2. Phelps Bridge stays relatively low across positions, and East Channel looks more even across positions. DO values do not separate clearly by temperature.
 
 
-## Figures 5, 6: Time series exploration 
+## Figure 5: Time series exploration
+
+This figure shows dissolved oxygen, temperature, and salinity over time. Panels separate the water quality variables and elevation-code measurement positions, and color shows site. Very high salinity outliers are removed from this exploratory figure so the main salinity pattern is easier to see.
 
 ```{r}
+#| label: figure-5-time-series
+#| fig-width: 12
+#| fig-height: 9
 
-figure_5 <- do_filtered |> 
-  ggplot(aes(x = date, y = do_mg_l, color = site_full)) +
-  geom_jitter()
-  
+# reshape DO, temperature, and salinity into one column for plotting
+time_series_data <- do_filtered |> 
+  select(
+    date,
+    site_full,
+    elevation_code,
+    do_mg_l,
+    temperature_c,
+    salinity_ppt
+  ) |> 
+  pivot_longer(
+    cols = c(do_mg_l, temperature_c, salinity_ppt),
+    names_to = "variable",
+    values_to = "value"
+  ) |> 
+  filter(!is.na(value)) |> 
+  mutate(
+    variable = case_when(
+      variable == "do_mg_l" ~ "Dissolved oxygen (mg/L)",
+      variable == "temperature_c" ~ "Water temperature (°C)",
+      variable == "salinity_ppt" ~ "Salinity (ppt)"
+    ),
+    elevation_code = fct_relevel(
+      elevation_code,
+      "0", "1", "2"
+    )
+  ) |> 
+  # remove only extreme salinity values for plotting
+  filter(
+    variable != "Salinity (ppt)" | value <= 50
+  )
+
+# plot all three variables over time
+figure_5 <- ggplot(
+  data = time_series_data,
+  mapping = aes(
+    x = date,
+    y = value,
+    color = site_full
+  )
+) +
+  geom_point(
+    alpha = 0.45,
+    size = 1.6,
+    position = position_jitter(
+      width = 5,
+      height = 0
+    )
+  ) +
+    facet_grid(
+    rows = vars(variable),
+    cols = vars(elevation_code),
+    scales = "free_y",
+    labeller = labeller(
+      elevation_code = c(
+        "0" = "Bottom (0)",
+        "1" = "Middle (1)",
+        "2" = "Upper (2)"
+      )
+    )
+  ) +
+  scale_y_continuous(
+    limits = c(0, NA),
+    expand = expansion(mult = c(0, 0.05))
+  ) +
+  labs(
+    title = "Water Quality Variables Over Time by Elevation Code",
+    x = "Date",
+    y = "Measured value",
+    color = "Site"
+  ) +
+  labs(
+    title = "Water Quality Variables Over Time by Elevation Code",
+    x = "Date",
+    y = "Measured value",
+    color = "Site"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(face = "bold"),
+    axis.title = element_text(face = "bold"),
+    strip.text = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    panel.grid.minor = element_blank()
+  )
+
 figure_5
-
-figure_6 <- do_filtered |> 
-  ggplot(aes(x = date, y = temperature_c, color = site_full)) +
-  geom_jitter()
-
-figure_6
-  
-
-
-
 ```
 
-
+This figure is exploratory. It shows how dissolved oxygen, temperature, and salinity are distributed over time across sites and elevation-code positions. Extreme salinity values are removed from the plot so the main salinity pattern is easier to view.
 
 
 # 7. Statistical analysis

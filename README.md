@@ -89,7 +89,9 @@ The project includes:
 
 ## Elective
 
-The group plans to create a visual model using three clear containers to represent the three sites. Layers of material and clear or blue marbles will be used to represent dissolved oxygen stratification at each site.
+The group plans to create a visual model using three clear containers to represent the three sampling sites. Blue beads will represent water, and white beads will represent dissolved oxygen patterns or stratification at each site.
+
+The cylinder containers and beads have already been purchased. Once the final visuals are planned, the group can use the beads to recreate the dissolved oxygen patterns observed at each site.
 
 ## Repository links
 
