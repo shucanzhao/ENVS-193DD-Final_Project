@@ -33,17 +33,18 @@ library(janitor)
 # file organization
 library(here)
 
-# working with dates and times
+# dates and times
 library(lubridate)
+
+# non-parametric post-hoc tests and effect sizes
+library(rstatix)
+
 ```
 
 ## Data
 
 ```{r}
 #| label: data
-
-# weather data from NOAA weather station
-weather <- read_csv(here("data", "NOAA-weather-data.csv"))
 
 # water quality survey metadata
 metadata <- read_csv(here("data", "NCOS_YSI_Water_Quality_Monitoring_0.csv"))
@@ -53,43 +54,6 @@ water_parameters <- read_csv(here("data", "YSI_Data_Begin_1.csv"))
 ```
 
 # 2. Clean data
-
-## Cleaning weather data
-
-### Goal
-
-Clean the weather dataset so it includes date, precipitation, maximum temperature, minimum temperature, month, year, and water year.
-
-```{r}
-#| label: cleaning-weather-data
-
-# create a cleaned weather dataset
-weather_clean <- weather |> 
-  
-  # clean column names so they are easier to use in R
-  clean_names() |> 
-  
-  # convert date from character to date format
-  mutate(date = mdy(date)) |> 
-  
-  # keep columns that may be useful for interpretation
-  select(date, prcp, tmax, tmin) |> 
-  
-  # create month and year columns from date
-  mutate(
-    month = month(date),
-    year = year(date)
-  ) |> 
-  
-  # create water year column
-  # water year starts in October, so Oct-Dec are assigned to the next year
-  mutate(
-    wy = case_when(
-      month >= 10 ~ year + 1,
-      TRUE ~ year
-    )
-  )
-```
 
 ## Cleaning metadata
 
@@ -146,7 +110,7 @@ metadata_clean <- metadata |>
 
 ### Goal
 
-Clean the water quality parameter dataset so it includes elevation code, elevation labels, dissolved oxygen, temperature, salinity, and conductivity.
+Clean the water quality parameter dataset so it includes elevation code, elevation labels, and dissolved oxygen measurements.
 
 ```{r}
 #| label: cleaning-water-parameter-data
@@ -220,7 +184,7 @@ water_quality <- full_join(
   # metadata has site and survey information
   x = metadata_clean,
   
-  # water_parameters has DO, salinity, temperature, and elevation measurements
+  # water_parameters has DO and elevation measurements
   y = water_parameters_clean,
   
   # match GlobalID from metadata with ParentGlobalID from water parameters
@@ -230,34 +194,35 @@ water_quality <- full_join(
   # keep columns needed for this project
   select(
     
-    # information about observation
+    # observation information
     global_id,
     monitoring_datetime,
     time_of_wq_measurement,
     monitor_name,
     weather,
+    
+    # site information
     site_name,
     other_site_name,
     site_full,
     x,
     y,
+    
+    # date and water year information
     month,
     year,
     wy,
     
-    # water information
+    # water condition information
     water_surface_elevation,
     flow,
     notes,
     
-    # water quality measurements
+    # dissolved oxygen and elevation information
     elevation_code,
     elevation_label,
     do_mg_l,
-    do_percent_sat,
-    conductivity_u_s_cm,
-    salinity_ppt,
-    temperature_c
+    do_percent_sat
   ) |> 
   
   # extract date from monitoring datetime
@@ -267,37 +232,17 @@ water_quality <- full_join(
   relocate(date, .after = monitoring_datetime)
 ```
 
-## Water quality weather = water quality + weather
-
-```{r}
-
-# join water quality data with weather data by date
-water_quality_weather <- left_join(
-  
-  # water_quality has site, DO, temperature, salinity, elevation, and water year
-  x = water_quality,
-  
-  # keep only weather columns that will not duplicate month, year, or wy
-  y = weather_clean |> 
-    select(date, prcp, tmax, tmin),
-  
-  # shared column
-  by = "date"
-)
-
-```
-
 # 4. Filter data for dissolved oxygen analysis
 
 ### Goal
 
-Create a filtered dissolved oxygen dataset that focuses on the three main NCOS sites, the 2024 and 2025 water years, and the main elevation codes used in the class example.
+Create a filtered dissolved oxygen dataset that focuses on the three main NCOS sites, the 2024 and 2025 water years, and the main elevation codes used for the stratification question.
 
 ```{r}
 #| label: filter-do-data
 
 # create filtered dataset for dissolved oxygen analysis
-do_filtered <- water_quality_weather |> 
+do_filtered <- water_quality |> 
   
   # remove observations from "Other" sites
   filter(site_full != "Other") |> 
@@ -311,18 +256,23 @@ do_filtered <- water_quality_weather |>
   # keep observations with dissolved oxygen measurements
   filter(!is.na(do_mg_l)) |> 
   
-  # remove impossible/extreme DO values that distort the plot scale
+  # remove impossible or extreme DO values that distort the plot scale
   filter(do_mg_l >= 0, do_mg_l <= 30)
 ```
 
 # 5. Summarize dissolved oxygen
+
+These summaries answer the two main project questions:
+
+1. How does dissolved oxygen differ across sites?
+2. How does dissolved oxygen stratification differ across sites?
 
 ## Dissolved oxygen by site
 
 ```{r}
 #| label: summarize-do-by-site
 
-# summarize dissolved oxygen across sites
+# summarize dissolved oxygen across the three main sites
 do_site_summary <- do_filtered |> 
   
   # group observations by site
@@ -336,18 +286,32 @@ do_site_summary <- do_filtered |>
     var_do = var(do_mg_l, na.rm = TRUE),
     n = n(),
     .groups = "drop"
+  ) |> 
+  
+  # rename columns so the table is easier to read
+  rename(
+    Site = site_full,
+    `Mean DO` = mean_do,
+    `Median DO` = median_do,
+    SD = sd_do,
+    Variance = var_do,
+    n = n
   )
 
-# show summary table
-do_site_summary
+# show summary table in the rendered PDF
+knitr::kable(
+  do_site_summary,
+  digits = 2,
+  caption = "Dissolved oxygen summary by site"
+)
 ```
 
 ## Dissolved oxygen by site and elevation code
 
 ```{r}
-#| label: summarize-do-by-elevation
+#| label: summarize-do-by-site-and-elevation
 
-# summarize dissolved oxygen by site and elevation code
+# summarize dissolved oxygen by site and elevation-code position
 do_elevation_summary <- do_filtered |> 
   
   # group observations by site and elevation code
@@ -360,19 +324,44 @@ do_elevation_summary <- do_filtered |>
     sd_do = sd(do_mg_l, na.rm = TRUE),
     n = n(),
     .groups = "drop"
+  ) |> 
+  
+  # rename columns so the table is easier to read
+  rename(
+    Site = site_full,
+    `Elevation code` = elevation_code,
+    `Mean DO` = mean_do,
+    `Median DO` = median_do,
+    SD = sd_do,
+    n = n
   )
 
-# show summary table
-do_elevation_summary
+# show summary table in the rendered PDF
+knitr::kable(
+  do_elevation_summary,
+  digits = 2,
+  caption = "Dissolved oxygen summary by site and elevation code"
+)
 ```
 
 # 6. Visualizing
 
-These figures describe patterns in dissolved oxygen before the statistical tests. They compare DO across sites, across elevation-code measurement positions, and with water temperature. The figures are descriptive because the sites also differ in tidal influence, salinity, flow, and distance from water sources.
+These figures focus on dissolved oxygen. Figure 1 follows the original proposed site comparison. Figure 2 follows the original proposed elevation-code stratification figure. Figure 3 replaces the scrapped temperature figure with a highlighted DO stratification figure. Figure 4 adds an exploratory time component by showing dissolved oxygen through time by site and elevation code.
+
+```{r}
+#| label: site-colors
+
+# consistent site colors used across figures
+site_colors <- c(
+  "East Channel" = "deepskyblue2",
+  "Phelps Bridge" = "dodgerblue3",
+  "Venoco Bridge" = "darkblue"
+)
+```
 
 ## Figure 1: Dissolved oxygen across sites
 
-This figure compares dissolved oxygen across the three main NCOS sites. Points show individual observations, and red diamonds show site medians.
+**Caption:** Figure 1 shows dissolved oxygen measurements across the three main NCOS sites. Points represent individual observations, and red diamonds represent site medians.
 
 ```{r}
 #| label: figure-1-do-across-sites
@@ -382,15 +371,13 @@ This figure compares dissolved oxygen across the three main NCOS sites. Points s
 # start with filtered dissolved oxygen data
 figure_1 <- ggplot(
   data = do_filtered,
-  # x-axis: site
-  # y-axis: dissolved oxygen
   mapping = aes(
     x = site_full,
-    y = do_mg_l
+    y = do_mg_l,
+    color = site_full
   )
 ) +
   # points show individual DO measurements
-  # jitter spreads overlapping points
   geom_point(
     alpha = 0.45,
     size = 1.8,
@@ -408,60 +395,66 @@ figure_1 <- ggplot(
     size = 5,
     shape = 18
   ) +
-  # start y-axis at 0 without extra space below
+  # apply consistent site colors
+  scale_color_manual(
+    values = site_colors
+  ) +
+  # keep the y-axis starting at zero
   scale_y_continuous(
     limits = c(0, NA),
     expand = expansion(mult = c(0, 0.05))
   ) +
-  # relabel plot
+  # add clear labels
   labs(
     title = "Dissolved Oxygen Across NCOS Sites",
     x = "Site",
     y = "Dissolved oxygen (mg/L)"
   ) +
-  # theme for comparing site-level distributions
+  # use a simple theme for readability
   theme_bw() +
   theme(
     plot.title = element_text(face = "bold"),
     axis.title.x = element_blank(),
     axis.title.y = element_text(face = "bold"),
-    panel.grid.minor = element_blank()
+    panel.grid.minor = element_blank(),
+    legend.position = "none"
   )
 
+# show figure
 figure_1
 ```
 
-Dissolved oxygen varies by site. East Channel has the highest median DO, and Phelps Bridge has the lowest. Venoco Bridge has a median between the other two sites, but it has the widest spread, with many values near 0 mg/L and several high DO values.
+**Interpretation:** Dissolved oxygen varied by site. East Channel had the highest median DO, Phelps Bridge had the lowest, and Venoco Bridge had the widest range of values.
 
-## Figure 2: Dissolved oxygen by elevation code
+## Figure 2: Dissolved oxygen stratification by site
 
-This figure compares dissolved oxygen across elevation-code measurement positions within each site.
+**Caption:** Figure 2 shows dissolved oxygen measurements across elevation-code positions within each site. Boxplots show the distribution of DO values, points represent individual observations, and red diamonds represent median DO values.
 
 ```{r}
-#| label: figure-2-do-by-elevation
+#| label: figure-2-do-stratification-by-site
 #| fig-width: 13
 #| fig-height: 6
 
 # start with filtered dissolved oxygen data
 figure_2 <- ggplot(
   data = do_filtered,
-  # x-axis: elevation code
-  # y-axis: dissolved oxygen
   mapping = aes(
     x = elevation_code,
     y = do_mg_l
   )
 ) +
-  # boxplots show the distribution of DO values at each elevation code
+  # neutral boxplots show the distribution of DO values at each elevation code
   geom_boxplot(
     outlier.shape = NA,
     width = 0.55,
-    alpha = 0.5
-  ) +
-  # points show individual DO measurements
-  # jitter spreads overlapping points
-  geom_point(
     alpha = 0.35,
+    fill = "gray90",
+    color = "gray35"
+  ) +
+  # colored points show individual DO measurements by site
+  geom_point(
+    mapping = aes(color = site_full),
+    alpha = 0.45,
     size = 1.5,
     position = position_jitter(
       width = 0.12,
@@ -479,7 +472,11 @@ figure_2 <- ggplot(
   ) +
   # separate panels by site
   facet_wrap(~ site_full, nrow = 1) +
-  # label elevation codes directly on the x-axis
+  # apply consistent site colors to the points
+  scale_color_manual(
+    values = site_colors
+  ) +
+  # label elevation codes more clearly
   scale_x_discrete(
     labels = c(
       "0" = "Bottom\n(0)",
@@ -487,359 +484,332 @@ figure_2 <- ggplot(
       "2" = "Upper\n(2)"
     )
   ) +
-  # start y-axis at 0 without extra space below
+  # keep the y-axis starting at zero
   scale_y_continuous(
     limits = c(0, NA),
     expand = expansion(mult = c(0, 0.05))
   ) +
-  # relabel plot
+  # add clear labels
   labs(
-    title = "Dissolved Oxygen by Elevation Code",
+    title = "Dissolved Oxygen Stratification by Site",
     x = "Elevation code",
     y = "Dissolved oxygen (mg/L)"
   ) +
-  # theme for faceted boxplots
+  # use a simple theme for readability
   theme_bw() +
   theme(
     plot.title = element_text(face = "bold"),
     axis.title = element_text(face = "bold"),
     axis.text.x = element_text(size = 9),
     strip.text = element_text(face = "bold"),
-    panel.grid.minor = element_blank()
-  )
-
-figure_2
-```
-
-The DO pattern across elevation codes is different for each site. East Channel looks similar across the three positions. Phelps Bridge stays low across positions, with fewer observations at elevation code 2. Venoco Bridge has lower DO at elevation code 0 and higher DO at elevation codes 1 and 2.
-
-## Figure 3: Dissolved oxygen and water temperature
-
-This figure shows dissolved oxygen and water temperature within each site. The fitted lines summarize the visual pattern in each panel.
-
-```{r}
-#| label: figure-3-do-temperature
-#| fig-width: 12
-#| fig-height: 6
-
-# start with filtered dissolved oxygen data
-figure_3 <- ggplot(
-  data = do_filtered,
-  # x-axis: water temperature
-  # y-axis: dissolved oxygen
-  mapping = aes(
-    x = temperature_c,
-    y = do_mg_l
-  )
-) +
-  # points show individual observations
-  geom_point(
-    alpha = 0.45,
-    size = 1.8
-  ) +
-  # linear trend line summarizes the visual pattern
-  geom_smooth(
-    method = "lm",
-    se = FALSE
-  ) +
-  # separate panels by site
-  facet_wrap(~ site_full, nrow = 1) +
-  # start y-axis at 0 without extra space below
-  scale_y_continuous(
-    limits = c(0, NA),
-    expand = expansion(mult = c(0, 0.05))
-  ) +
-  # relabel plot
-  labs(
-    title = "Dissolved Oxygen and Water Temperature",
-    x = "Water temperature (°C)",
-    y = "Dissolved oxygen (mg/L)"
-  ) +
-  # theme for scatterplots with fitted lines
-  theme_bw() +
-  theme(
-    plot.title = element_text(face = "bold"),
-    axis.title = element_text(face = "bold"),
-    strip.text = element_text(face = "bold"),
-    panel.grid.minor = element_blank()
-  )
-
-figure_3
-```
-
-The temperature-DO pattern is not the same across sites. East Channel has a slight upward fitted line, while Phelps Bridge and Venoco Bridge have downward fitted lines. The points are widely scattered, especially at Venoco Bridge, where low and high DO values occur across similar temperatures.
-
-## Figure 4: Dissolved oxygen, temperature, site, and elevation code
-
-This figure separates the temperature-DO plot by site and elevation code.
-
-```{r}
-#| label: figure-4-do-temperature-elevation
-#| fig-width: 12
-#| fig-height: 8
-
-# start with filtered dissolved oxygen data
-# reorder elevation code so 2 is shown at the top and 0 at the bottom
-do_plot_4 <- do_filtered |> 
-  mutate(
-    panel_elevation = fct_relevel(
-      elevation_code,
-      "2", "1", "0"
-    )
-  )
-
-# create one panel column for each site
-panel_sites <- do_plot_4 |> 
-  distinct(site_full) |> 
-  rename(panel_site = site_full)
-
-# create gray background data
-# this repeats the data across panels, then removes the focal site
-do_background <- do_plot_4 |> 
-  crossing(panel_sites) |> 
-  filter(site_full != panel_site)
-
-# create highlighted data
-# this keeps each site in its own panel
-do_highlight <- do_plot_4 |> 
-  mutate(panel_site = site_full)
-
-# start plot
-figure_4 <- ggplot() +
-  # gray points show non-focal sites for comparison
-  geom_point(
-    data = do_background,
-    mapping = aes(
-      x = temperature_c,
-      y = do_mg_l
-    ),
-    color = "gray80",
-    alpha = 0.35,
-    size = 1.2
-  ) +
-  # dark green points show the focal site
-  geom_point(
-    data = do_highlight,
-    mapping = aes(
-      x = temperature_c,
-      y = do_mg_l
-    ),
-    color = "darkgreen",
-    alpha = 0.55,
-    size = 1.8
-  ) +
-  # rows: elevation code
-  # columns: site
-  facet_grid(
-    rows = vars(panel_elevation),
-    cols = vars(panel_site)
-  ) +
-  # start y-axis at 0 without extra space below
-  scale_y_continuous(
-    limits = c(0, NA),
-    expand = expansion(mult = c(0, 0.05))
-  ) +
-  # relabel plot
-  labs(
-    title = "Dissolved Oxygen and Water Temperature by Site and Elevation Code",
-    x = "Water temperature (°C)",
-    y = "Dissolved oxygen (mg/L)"
-  ) +
-  # theme for many small panels
-  theme_bw() +
-  theme(
-    plot.title = element_text(face = "bold"),
-    axis.title = element_text(face = "bold"),
-    strip.text = element_text(face = "bold"),
     panel.grid.minor = element_blank(),
-    panel.border = element_rect(color = "black", fill = NA),
-    panel.spacing = unit(0.7, "lines"),
     legend.position = "none"
   )
 
-figure_4
+# show figure
+figure_2
 ```
 
-Figure 4 shows DO and temperature separated by site and elevation code. Venoco Bridge has the clearest difference across elevation codes, with lower DO at elevation code 0 and higher DO at elevation codes 1 and 2. Phelps Bridge stays relatively low across positions, and East Channel looks more even across positions. DO values do not separate clearly by temperature.
+**Interpretation:** DO patterns across elevation codes were different by site. East Channel was fairly similar across depths, Phelps Bridge stayed lower overall, and Venoco Bridge showed the clearest increase from bottom to upper measurements.
 
+## Figure 3: Dissolved oxygen stratification by focal site
 
-## Figure 5: Time series exploration
-
-This figure shows dissolved oxygen, temperature, and salinity over time. Panels separate the water quality variables and elevation-code measurement positions, and color shows site. Very high salinity outliers are removed from this exploratory figure so the main salinity pattern is easier to see.
+**Caption:** Figure 3 highlights dissolved oxygen measurements across elevation-code positions for each focal site. In each panel, white points show the focal site and gray points show the other sites for comparison. Elevation code is shown on the y-axis, with bottom measurements at the bottom and upper measurements at the top.
 
 ```{r}
-#| label: figure-5-time-series
+#| label: figure-3-stratification-highlight
 #| fig-width: 12
-#| fig-height: 9
+#| fig-height: 6
 
-# reshape DO, temperature, and salinity into one column for plotting
-time_series_data <- do_filtered |> 
-  select(
-    date,
-    site_full,
-    elevation_code,
-    do_mg_l,
-    temperature_c,
-    salinity_ppt
-  ) |> 
-  pivot_longer(
-    cols = c(do_mg_l, temperature_c, salinity_ppt),
-    names_to = "variable",
-    values_to = "value"
-  ) |> 
-  filter(!is.na(value)) |> 
+# reorder elevation code so bottom is at the bottom and upper is at the top
+do_plot_3 <- do_filtered |> 
   mutate(
-    variable = case_when(
-      variable == "do_mg_l" ~ "Dissolved oxygen (mg/L)",
-      variable == "temperature_c" ~ "Water temperature (°C)",
-      variable == "salinity_ppt" ~ "Salinity (ppt)"
-    ),
-    elevation_code = fct_relevel(
+    panel_elevation = factor(
       elevation_code,
-      "0", "1", "2"
+      levels = c("0", "1", "2")
     )
-  ) |> 
-  # remove only extreme salinity values for plotting
-  filter(
-    variable != "Salinity (ppt)" | value <= 50
   )
 
-# plot all three variables over time
-figure_5 <- ggplot(
-  data = time_series_data,
-  mapping = aes(
-    x = date,
-    y = value,
-    color = site_full
+# set site order for panels
+site_levels <- c("East Channel", "Phelps Bridge", "Venoco Bridge")
+
+# create one row per panel for the colored backgrounds
+panel_background <- do_plot_3 |> 
+  distinct(site_full) |> 
+  rename(panel_site = site_full) |> 
+  mutate(panel_site = factor(panel_site, levels = site_levels))
+
+# create gray background points by repeating all data across site panels
+highlight_background <- do_plot_3 |> 
+  
+  # cross each observation with each panel site
+  crossing(panel_background) |> 
+  
+  # remove the focal site so only the other sites remain in gray
+  filter(site_full != panel_site) |> 
+  
+  # keep site panel order consistent
+  mutate(panel_site = factor(panel_site, levels = site_levels))
+
+# create focal points so each site appears in its own panel
+highlight_focal <- do_plot_3 |> 
+  mutate(
+    panel_site = factor(site_full, levels = site_levels)
   )
-) +
-  geom_point(
+
+# make highlighted stratification plot
+figure_3 <- ggplot() +
+  
+  # blue background identifies each focal site panel
+  geom_rect(
+    data = panel_background,
+    aes(
+      xmin = -Inf,
+      xmax = Inf,
+      ymin = -Inf,
+      ymax = Inf,
+      fill = panel_site
+    ),
+    inherit.aes = FALSE,
     alpha = 0.45,
-    size = 1.6,
+    show.legend = FALSE
+  ) +
+  
+  # gray points show other sites for comparison
+  geom_point(
+    data = highlight_background,
+    aes(
+      x = do_mg_l,
+      y = panel_elevation
+    ),
+    color = "gray33",
+    alpha = 0.30,
+    size = 1.3,
     position = position_jitter(
-      width = 5,
-      height = 0
+      width = 0,
+      height = 0.12,
+      seed = 193
     )
   ) +
-    facet_grid(
-    rows = vars(variable),
-    cols = vars(elevation_code),
-    scales = "free_y",
-    labeller = labeller(
-      elevation_code = c(
-        "0" = "Bottom (0)",
-        "1" = "Middle (1)",
-        "2" = "Upper (2)"
-      )
+  
+  # white points show the focal site in each panel
+  geom_point(
+    data = highlight_focal,
+    aes(
+      x = do_mg_l,
+      y = panel_elevation
+    ),
+    color = "white",
+    alpha = 0.85,
+    size = 1.9,
+    position = position_jitter(
+      width = 0,
+      height = 0.12,
+      seed = 193
     )
   ) +
-  scale_y_continuous(
+  
+  # one panel for each site
+  facet_wrap(~ panel_site, nrow = 1) +
+  
+  # use the same site colors as the other figures
+  scale_fill_manual(
+    values = site_colors
+  ) +
+  
+  # keep the DO axis starting at zero
+  scale_x_continuous(
     limits = c(0, NA),
     expand = expansion(mult = c(0, 0.05))
   ) +
-  labs(
-    title = "Water Quality Variables Over Time by Elevation Code",
-    x = "Date",
-    y = "Measured value",
-    color = "Site"
+  
+  # relabel elevation code on the y-axis
+  scale_y_discrete(
+    labels = c(
+      "0" = "Bottom (0)",
+      "1" = "Middle (1)",
+      "2" = "Upper (2)"
+    )
   ) +
+  
+  # add clear labels
   labs(
-    title = "Water Quality Variables Over Time by Elevation Code",
-    x = "Date",
-    y = "Measured value",
-    color = "Site"
+    title = "Dissolved Oxygen Stratification by Site",
+    x = "Dissolved oxygen (mg/L)",
+    y = "Elevation code"
   ) +
+  
+  # use a simple theme for readability
   theme_bw() +
   theme(
     plot.title = element_text(face = "bold"),
     axis.title = element_text(face = "bold"),
     strip.text = element_text(face = "bold"),
+    strip.background = element_rect(fill = "white"),
+    panel.border = element_rect(color = "black", fill = NA),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "none"
+  )
+
+# show figure
+figure_3
+```
+
+**Interpretation:** Stratification is most visible at Venoco Bridge, where DO is generally lower at the bottom and higher in the middle and upper elevations.
+
+## Figure 4: Dissolved oxygen through time by elevation code
+
+**Caption:** Figure 4 shows dissolved oxygen measurements through time, separated by elevation code. Points represent individual dissolved oxygen observations, and colors represent sites.
+
+```{r}
+#| label: figure-4-do-through-time
+#| fig-width: 10
+#| fig-height: 8
+
+# reorder elevation code so upper is at the top and bottom is at the bottom
+do_plot_4 <- do_filtered |> 
+  mutate(
+    panel_elevation = factor(
+      elevation_code,
+      levels = c("2", "1", "0")
+    )
+  )
+
+# plot dissolved oxygen through time, separated by elevation code and colored by site
+figure_4 <- ggplot(
+  data = do_plot_4,
+  mapping = aes(
+    x = date,
+    y = do_mg_l,
+    color = site_full
+  )
+) +
+  # points show individual DO observations through time
+  geom_point(
+    alpha = 0.55,
+    size = 1.7,
+    position = position_jitter(
+      width = 2,
+      height = 0,
+      seed = 193
+    )
+  ) +
+  # panel rows show elevation position
+  facet_grid(
+    rows = vars(panel_elevation),
+    labeller = labeller(
+      panel_elevation = c(
+        "2" = "Upper (2)",
+        "1" = "Middle (1)",
+        "0" = "Bottom (0)"
+      )
+    )
+  ) +
+  # use the same site colors as the other figures
+  scale_color_manual(
+    values = site_colors,
+    name = "Site"
+  ) +
+  # keep the DO axis starting at zero
+  scale_y_continuous(
+    limits = c(0, NA),
+    expand = expansion(mult = c(0, 0.05))
+  ) +
+  # add clear labels
+  labs(
+    title = "Dissolved Oxygen Through Time by Elevation Code",
+    x = "Sampling date",
+    y = "Dissolved oxygen (mg/L)"
+  ) +
+  # use a simple theme for readability
+  theme_bw() +
+  theme(
+    plot.title = element_text(face = "bold"),
+    axis.title = element_text(face = "bold"),
     axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text.y = element_text(face = "bold"),
     panel.grid.minor = element_blank()
   )
 
-figure_5
+# show figure
+figure_4
 ```
 
-This figure is exploratory. It shows how dissolved oxygen, temperature, and salinity are distributed over time across sites and elevation-code positions. Extreme salinity values are removed from the plot so the main salinity pattern is easier to view.
-
+**Interpretation:** DO changed through time, but the site pattern was still visible. East Channel was generally higher, Phelps Bridge was generally lower, and Venoco Bridge showed more separation between bottom, middle, and upper measurements.
 
 # 7. Statistical analysis
 
-The statistical analyses test whether dissolved oxygen differs across sites, whether dissolved oxygen differs across elevation codes, and whether dissolved oxygen is related to temperature. Kruskal-Wallis tests are used for group comparisons with more than two groups. Pairwise Wilcoxon tests are used after significant Kruskal-Wallis results. Linear models are used for the temperature analyses.
+The statistical analyses follow the class workflow for comparing more than two groups: summarize the data, visualize the pattern, run a Kruskal-Wallis test, use Dunn post-hoc tests when the Kruskal-Wallis result is significant, calculate effect size, and interpret the result. The main response variable is dissolved oxygen. The grouping variables are site and elevation code.
 
-## Dissolved oxygen across sites
+## Question 1: How does dissolved oxygen differ across sites?
 
-The first analysis tests whether dissolved oxygen differs across East Channel, Phelps Bridge, and Venoco Bridge.
+This analysis tests whether dissolved oxygen differs across East Channel, Phelps Bridge, and Venoco Bridge.
+
+### Kruskal-Wallis test
 
 ```{r}
-#| label: stats-do-by-site
+#| label: stats-site-kruskal
 
-# test whether DO differs across sites
+# test whether DO differs across the three main sites
 do_site_test <- kruskal.test(
   do_mg_l ~ site_full,
   data = do_filtered
 )
 
+# show Kruskal-Wallis test result
 do_site_test
 ```
 
-Dissolved oxygen differs significantly across sites (Kruskal-Wallis test, $\chi^2 = 45.67$, df = 2, p < 0.001). This means that East Channel, Phelps Bridge, and Venoco Bridge do not have the same dissolved oxygen distribution.
+The Kruskal-Wallis test showed that dissolved oxygen differed significantly across sites, $\chi^2$ = 45.67, df = 2, p < 0.001. This means that DO was not distributed the same way across East Channel, Phelps Bridge, and Venoco Bridge.
+
+### Dunn post-hoc test
 
 ```{r}
-#| label: stats-do-by-site-pairwise
+#| label: stats-site-dunn
 
-# compare sites after significant Kruskal-Wallis result
-do_site_pairwise <- pairwise.wilcox.test(
-  x = do_filtered$do_mg_l,
-  g = do_filtered$site_full,
-  p.adjust.method = "BH"
-)
+# compare site pairs after significant Kruskal-Wallis result
+do_site_dunn <- do_filtered |> 
+  dunn_test(
+    do_mg_l ~ site_full,
+    p.adjust.method = "holm"
+  )
 
-do_site_pairwise
+# show Dunn post-hoc test result
+do_site_dunn
 ```
 
-Pairwise Wilcoxon tests show that all three sites differ from each other. Phelps Bridge differs from East Channel (p < 0.001), Venoco Bridge differs from East Channel (p < 0.001), and Venoco Bridge differs from Phelps Bridge (p < 0.001). East Channel has the highest median DO, Phelps Bridge has the lowest median DO, and Venoco Bridge has the greatest spread.
+Because the Kruskal-Wallis test was significant, Dunn post-hoc tests were used to compare site pairs. All three site pairs were significantly different after adjustment: East Channel and Phelps Bridge, East Channel and Venoco Bridge, and Phelps Bridge and Venoco Bridge.
 
-## Dissolved oxygen across elevation codes
-
-The second analysis tests whether dissolved oxygen differs across elevation codes 0, 1, and 2 across the full filtered dataset. Elevation codes represent measurement positions in the water column.
+### Effect size
 
 ```{r}
-#| label: stats-do-by-elevation
+#| label: stats-site-effect-size
 
-# test whether DO differs across elevation codes
-do_elevation_test <- kruskal.test(
-  do_mg_l ~ elevation_code,
-  data = do_filtered
-)
+# calculate effect size for the site comparison
+do_site_effect_size <- do_filtered |> 
+  kruskal_effsize(
+    do_mg_l ~ site_full
+  )
 
-do_elevation_test
+# show effect size result
+do_site_effect_size
 ```
 
-Dissolved oxygen differs significantly across elevation codes overall (Kruskal-Wallis test, $\chi^2 = 19.00$, df = 2, p < 0.001). This means that dissolved oxygen is not distributed the same way across bottom, middle, and upper measurements when all sites are analyzed together.
+The effect size for the site comparison was $\eta^2[H]$ = 0.083, which was interpreted as moderate in the test output. This suggests that site explained a moderate amount of variation in DO ranks in this filtered dataset.
+
+### Interpretation
+
+Dissolved oxygen differed across the three main NCOS sites. East Channel had the highest median DO, Phelps Bridge had the lowest median DO, and Venoco Bridge had the widest spread of values. The Dunn post-hoc test showed that all site pairs were significantly different, so DO patterns were not the same across sites.
+
+## Question 2: How does dissolved oxygen stratification differ across sites?
+
+This analysis tests whether dissolved oxygen differs across elevation-code measurement positions within each site. This addresses stratification because elevation code represents the measurement position in the water column.
+
+### Kruskal-Wallis tests within each site
 
 ```{r}
-#| label: stats-do-by-elevation-pairwise
-
-# compare elevation codes after significant Kruskal-Wallis result
-do_elevation_pairwise <- pairwise.wilcox.test(
-  x = do_filtered$do_mg_l,
-  g = do_filtered$elevation_code,
-  p.adjust.method = "BH"
-)
-
-do_elevation_pairwise
-```
-
-Pairwise Wilcoxon tests show significant differences between all elevation code pairs overall. Elevation code 0 differs from elevation code 1 (p = 0.032), elevation code 0 differs from elevation code 2 (p < 0.001), and elevation code 1 differs from elevation code 2 (p = 0.016).
-
-## Dissolved oxygen across elevation codes within each site
-
-The next analysis compares dissolved oxygen across elevation codes within each site. This checks whether the elevation-code pattern is the same at each location.
-
-```{r}
-#| label: stats-elevation-within-sites
+#| label: stats-stratification-within-sites-kruskal
 
 # test DO differences across elevation codes within East Channel
 east_channel_elevation_test <- kruskal.test(
@@ -862,76 +832,63 @@ venoco_bridge_elevation_test <- kruskal.test(
     filter(site_full == "Venoco Bridge")
 )
 
+# show within-site Kruskal-Wallis results
 east_channel_elevation_test
 phelps_bridge_elevation_test
 venoco_bridge_elevation_test
 ```
 
-Dissolved oxygen does not differ significantly across elevation codes at East Channel (p = 0.574) or Phelps Bridge (p = 0.221). At Venoco Bridge, dissolved oxygen differs significantly across elevation codes (Kruskal-Wallis test, $\chi^2 = 28.64$, df = 2, p < 0.001). This shows that the overall elevation-code result is mostly coming from the Venoco Bridge pattern.
+The within-site Kruskal-Wallis tests showed no significant DO differences across elevation codes at East Channel or Phelps Bridge. Venoco Bridge did show a significant difference across elevation codes, $\chi^2$ = 28.64, df = 2, p < 0.001. This means that Venoco Bridge had the clearest statistical evidence of DO stratification.
+
+### Dunn post-hoc test for Venoco Bridge
 
 ```{r}
-#| label: stats-venoco-elevation-pairwise
+#| label: stats-venoco-stratification-dunn
 
-# compare DO across elevation codes within Venoco Bridge
-venoco_bridge_pairwise <- pairwise.wilcox.test(
-  x = do_filtered |> 
-    filter(site_full == "Venoco Bridge") |> 
-    pull(do_mg_l),
-  g = do_filtered |> 
-    filter(site_full == "Venoco Bridge") |> 
-    pull(elevation_code),
-  p.adjust.method = "BH"
-)
+# compare elevation code pairs within Venoco Bridge
+venoco_bridge_dunn <- do_filtered |> 
+  
+  # keep only Venoco Bridge because it had a significant Kruskal-Wallis result
+  filter(site_full == "Venoco Bridge") |> 
+  
+  # compare all elevation-code pairs
+  dunn_test(
+    do_mg_l ~ elevation_code,
+    p.adjust.method = "holm"
+  )
 
-venoco_bridge_pairwise
+# show Venoco Bridge Dunn post-hoc result
+venoco_bridge_dunn
 ```
 
-At Venoco Bridge, dissolved oxygen differs significantly between all elevation code pairs. Elevation code 0 differs from elevation code 1 (p = 0.0018), elevation code 0 differs from elevation code 2 (p < 0.001), and elevation code 1 differs from elevation code 2 (p = 0.0417). Median dissolved oxygen increases from elevation code 0 to elevation code 2: 4.31 mg/L at code 0, 6.38 mg/L at code 1, and 7.62 mg/L at code 2. This matches the visual pattern in Figure 2, where Venoco Bridge shows the clearest difference across elevation codes.
+Because Venoco Bridge had a significant Kruskal-Wallis result, Dunn post-hoc tests were used to compare elevation-code pairs at that site. All three pairs were significantly different after adjustment: bottom and middle, bottom and upper, and middle and upper. This supports the pattern of higher median DO from bottom to upper measurements at Venoco Bridge.
 
-## Dissolved oxygen and temperature
-
-Temperature is included as an exploratory variable to test whether water temperature is related to dissolved oxygen.
+### Effect size for Venoco Bridge
 
 ```{r}
-#| label: stats-do-temperature
+#| label: stats-venoco-stratification-effect-size
 
-# test the overall relationship between DO and water temperature
-do_temperature_model <- lm(
-  do_mg_l ~ temperature_c,
-  data = do_filtered
-)
+# calculate effect size for elevation-code differences within Venoco Bridge
+venoco_bridge_effect_size <- do_filtered |> 
+  
+  # keep only Venoco Bridge because it showed significant elevation-code differences
+  filter(site_full == "Venoco Bridge") |> 
+  
+  # calculate Kruskal-Wallis effect size
+  kruskal_effsize(
+    do_mg_l ~ elevation_code
+  )
 
-summary(do_temperature_model)
+# show Venoco Bridge effect size result
+venoco_bridge_effect_size
 ```
 
-Water temperature alone is not significantly related to dissolved oxygen (linear model, p = 0.790, $R^2$ < 0.001). Temperature by itself does not describe the DO pattern in the full filtered dataset.
+The effect size for the Venoco Bridge elevation-code comparison was $\eta^2[H]$ = 0.105, which was interpreted as moderate in the test output. This suggests that elevation code explained a moderate amount of variation in DO ranks at Venoco Bridge.
 
-## Dissolved oxygen, site, elevation code, and temperature
+### Interpretation
 
-A combined model tests whether dissolved oxygen is related to site, elevation code, and temperature together.
+Statistical evidence for DO stratification was clearest at Venoco Bridge. East Channel and Phelps Bridge did not show significant DO differences across elevation codes, while Venoco Bridge did. At Venoco Bridge, median DO was lower at the bottom and higher at the middle and upper positions.
 
-```{r}
-#| label: stats-combined-model
+# 8. Overall interpretation
 
-# test site, elevation code, and temperature together
-do_combined_model <- lm(
-  do_mg_l ~ site_full + elevation_code + temperature_c,
-  data = do_filtered
-)
-
-summary(do_combined_model)
-```
-
-In the combined model, site, elevation code, and temperature are significant. Phelps Bridge and Venoco Bridge differ from East Channel, elevation codes 1 and 2 differ from elevation code 0, and temperature has a negative relationship with dissolved oxygen after site and elevation code are included.
-
-The combined model explains about 13% of the variation in dissolved oxygen ($R^2 = 0.131$). This means these variables are related to dissolved oxygen, but most of the variation is still not explained by this model.
-
-## Statistical interpretation
-
-Dissolved oxygen differs significantly across sites. Pairwise tests show that all three sites differ from each other. East Channel has the highest median DO, Phelps Bridge has the lowest median DO, and Venoco Bridge has the greatest spread.
-
-Dissolved oxygen also differs significantly across elevation codes overall. However, the within-site tests show that this pattern is mostly from Venoco Bridge. East Channel and Phelps Bridge do not show significant DO differences across elevation codes, while Venoco Bridge does. At Venoco Bridge, median DO increases from elevation code 0 to elevation code 2.
-
-Temperature alone is not significantly related to dissolved oxygen. Temperature is significant in the combined model after site and elevation code are included, but the model only explains about 13% of the variation.
-
-Overall, the strongest results are the site differences and the elevation-code pattern at Venoco Bridge. Temperature alone is not significant, but it is significant when site and elevation code are included. Future analysis could include salinity, flow, tidal timing, and distance from water sources to better describe the site-level differences.
+Overall, dissolved oxygen differed across the three main NCOS sites, and statistical evidence for stratification was clearest at Venoco Bridge. East Channel had the highest median DO, Phelps Bridge had the lowest median DO, and Venoco Bridge showed the clearest increase from bottom to upper measurements. These results suggest that DO conditions and stratification patterns were not the same across the three sites.
