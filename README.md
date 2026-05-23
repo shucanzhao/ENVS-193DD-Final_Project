@@ -38,6 +38,8 @@ library(lubridate)
 │   ├── final_paper.qmd
 │   ├── visual_draft_2.pdf
 │   ├── visual_draft_2.qmd
+│   ├── visual_draft-3.pdf
+│   ├── visual_draft-3.qmd
 │   ├── Visualization_Draft.pdf
 │   └── Visualization_Draft.qmd
 └── data
@@ -48,11 +50,14 @@ library(lubridate)
 
 ### Code and output files
 
-- `Visualization_Draft.qmd`: Shucan’s visualization draft, including code, figures, and written interpretation
+- `Visualization_Draft.qmd`: Shucan’s visualization draft
 - `Visualization_Draft.pdf`: rendered PDF version of Shucan’s visualization draft
 
-- `visual_draft_2.qmd`: Rebecca’s updated visualization draft, including revised figures, interpretation, and statistical analysis
+- `visual_draft_2.qmd`: Rebecca’s visualization draft
 - `visual_draft_2.pdf`: rendered PDF version of Rebecca’s updated visualization draft
+
+- `visual_draft-3.qmd`:Phoebe's visualization draft
+- `visual_draft-3.pdf`: rendered PDF version of Phoebe’s updated visualization draft
 
 
 ### Data files
@@ -80,6 +85,7 @@ The project includes:
 
 - [Visualization draft](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/Visualization_Draft.pdf)
 - [visual draft 2](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/visual_draft_2.pdf)
+- [visual draft 3](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/visual_draft-3.pdf)
 
 ## Project roles
 
