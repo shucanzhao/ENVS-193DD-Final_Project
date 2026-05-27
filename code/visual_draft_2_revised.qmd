@@ -52,18 +52,22 @@ metadata <- read_csv(here("data", "NCOS_YSI_Water_Quality_Monitoring_0.csv"))
 water_parameters <- read_csv(here("data", "YSI_Data_Begin_1.csv"))
 ```
 
+
 # 2. Project background
 
-Dissolved oxygen is an important water quality measurement because it affects habitat conditions for aquatic organisms. At NCOS, dissolved oxygen may differ across sites because channels can vary in flow, tidal connection, water residence time, and physical structure.
+Dissolved oxygen is an important water quality measurement because it affects which organisms can live in aquatic habitats. Fish, aquatic invertebrates, microbes, and other organisms depend on oxygen availability, so low dissolved oxygen can limit habitat quality. Dissolved oxygen can also influence nutrient cycling because oxygen conditions affect microbial processes that control how nutrients move through wetland and aquatic systems.
 
 This project focuses on two questions:
 
 1. How does dissolved oxygen differ across sites?
 2. How does dissolved oxygen stratification differ across sites?
 
-These questions are relevant to NCOS because dissolved oxygen helps describe water quality conditions across restored wetland channels. They are also relevant beyond NCOS because low oxygen and stratification can occur in many aquatic systems where depth, flow, and mixing differ across locations.
+At NCOS, dissolved oxygen may differ across sites because location within the restored wetland can affect water movement, mixing, vegetation, algae, and water level. East Channel does not have the same direct water inputs as the other sites and has more pickleweed nearby. Phelps Bridge is closer to residential areas and has more vegetation in the water. Venoco Bridge is closer to the ocean and may be more influenced by tidal connection or coastal water movement.
 
-For this analysis, elevation code is used as a simple way to compare dissolved oxygen at different positions in the water column. Larger differences between bottom and upper measurements suggest stronger dissolved oxygen stratification. Stratification is relevant to the physical processes in this study because it reflects how dissolved oxygen conditions can differ vertically in the water column when water is not fully mixed.
+These site differences matter because vegetation and algal growth can influence oxygen levels. Photosynthesis can add oxygen during the day, while respiration and decomposition can reduce oxygen. Because each site sits in a different part of NCOS, dissolved oxygen may vary strongly by location.
+
+For this analysis, elevation code is used as a simple way to compare dissolved oxygen at different positions in the water column: bottom, middle, and upper measurements. Larger differences between bottom and upper measurements suggest stronger dissolved oxygen stratification. Stratification is relevant to the physical processes in this study because it reflects how dissolved oxygen conditions can differ vertically when water is not fully mixed.
+
 
 # 3. Clean data
 
