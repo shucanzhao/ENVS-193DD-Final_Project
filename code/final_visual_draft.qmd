@@ -38,6 +38,17 @@ library(lubridate)
 
 # non-parametric post-hoc tests and effect sizes
 library(rstatix)
+
+```
+
+```{r}
+#| label: create-images-folder
+
+dir.create(
+  here("images"),
+  showWarnings = FALSE
+)
+
 ```
 
 ## Data
@@ -513,6 +524,15 @@ figure_1 <- ggplot(
 
 # show figure
 figure_1
+
+ggsave(
+  filename = here("images", "do_across_sites.png"),
+  plot = figure_1,
+  width = 10,
+  height = 6,
+  dpi = 300
+)
+
 ```
 
 **Interpretation:** Dissolved oxygen varied by site. East Channel had the highest median DO, Phelps Bridge had the lowest median DO, and Venoco Bridge had the widest spread of values.
@@ -599,6 +619,15 @@ figure_2 <- ggplot(
 
 # show figure
 figure_2
+
+ggsave(
+  filename = here("images", "do_stratification_by_site.png"),
+  plot = figure_2,
+  width = 13,
+  height = 6,
+  dpi = 300
+)
+
 ```
 
 **Interpretation:** DO patterns across elevation codes were different by site. East Channel was fairly similar across depths, Phelps Bridge stayed lower overall, and Venoco Bridge showed the clearest increase from bottom to upper measurements.
@@ -695,6 +724,15 @@ figure_3 <- ggplot(
 
 # show figure
 figure_3
+
+ggsave(
+  filename = here("images", "do_elevation_profile_by_site.png"),
+  plot = figure_3,
+  width = 10,
+  height = 7,
+  dpi = 300
+)
+
 ```
 
 **Interpretation:** Venoco Bridge had the clearest elevation profile, with median DO increasing from bottom to upper measurements. East Channel and Phelps Bridge showed smaller differences across elevation codes.
@@ -788,6 +826,15 @@ figure_4 <- ggplot(
 
 # show figure
 figure_4
+
+ggsave(
+  filename = here("images", "median_do_through_time_by_elevation.png"),
+  plot = figure_4,
+  width = 10,
+  height = 8,
+  dpi = 300
+)
+
 ```
 
 **Interpretation:** Median DO changed through time, but the site pattern was still visible. East Channel was generally higher, Phelps Bridge was generally lower, and Venoco Bridge showed the clearest difference between bottom and upper measurements.

@@ -34,21 +34,32 @@ library(lubridate)
 ├── README.md
 ├── ENVS-193DD-Final_Project.Rproj
 ├── code
+│   ├── final_paper.qmd
+│   ├── final_paper.pdf
+│   ├── final_visual_draft.qmd
+│   ├── final_visual_draft.pdf
 │   ├── ecology.csl
 │   ├── references.bib
-│   ├── final_paper.pdf
-│   ├── final_paper.qmd
-│   ├── visual_draft_2.pdf
 │   ├── visual_draft_2.qmd
-│   ├── visual_draft-3.pdf
+│   ├── visual_draft_2.pdf
 │   ├── visual_draft-3.qmd
-│   ├── Visualization_Draft.pdf
-│   └── Visualization_Draft.qmd
-└── data
-    ├── NCOS_YSI_Water_Quality_Monitoring_0.csv
-    ├── NOAA-weather-data.csv
-    └── YSI_Data_Begin_1.csv
+│   ├── visual_draft-3.pdf
+│   ├── Visualization_Draft.qmd
+│   └── Visualization_Draft.pdf
+├── data
+│   ├── NCOS_YSI_Water_Quality_Monitoring_0.csv
+│   ├── YSI_Data_Begin_1.csv
+│   └── NOAA-weather-data.csv
+└── images
+    ├── do_across_sites.png
+    ├── do_stratification_by_site.png
+    ├── do_elevation_profile_by_site.png
+    ├── median_do_through_time_by_elevation.png
+    ├── do_time_exploration.png
+    ├── temp_time_exploration.png
+    └── mockup_plot.png
 ```
+
 
 ### Code and output files
 
@@ -85,9 +96,12 @@ The project includes:
 
 ## Rendered output
 
+- [Final paper](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/final_paper.pdf)
+- [Final visual draft](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/final_visual_draft.pdf)
+- [Visual draft 3](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/visual_draft-3.pdf)
+- [Visual draft 2](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/visual_draft_2.pdf)
 - [Visualization draft](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/Visualization_Draft.pdf)
-- [visual draft 2](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/visual_draft_2.pdf)
-- [visual draft 3](https://github.com/shucanzhao/ENVS-193DD-Final_Project/blob/main/code/visual_draft-3.pdf)
+
 
 ## Project roles
 
