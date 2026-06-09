@@ -133,16 +133,17 @@ The project includes:
 - Stats and visualization director: Rebecca Martinez
 - GitHub/code director: Shucan Zhao
 
-
 ## Elective
 
 For the elective portion of the project, the group created a physical visual model to represent dissolved oxygen stratification across the three NCOS sites: East Channel, Phelps Bridge, and Venoco Bridge.
 
-The model uses three clear containers, with each container representing one NCOS site. Blue beads represent the water column, and cotton represents relative dissolved oxygen. More cotton represents higher dissolved oxygen, while less cotton represents lower dissolved oxygen. The model is organized by bottom, middle, and upper measurement positions to show how dissolved oxygen can differ within the water column.
+The model uses three clear containers, with each container representing one NCOS site. Different hues of blue beads represent the water elevation codes, and cotton represents relative dissolved oxygen. More cotton represents higher dissolved oxygen, while less cotton represents lower dissolved oxygen. The model is intended to show how dissolved oxygen can differ within the water column and across sites.
 
 The mock-up below was used to plan how the physical model would represent each site and elevation-code position.
 
 ![Physical model mock-up showing the planned dissolved oxygen visual model by site.](images/mockup_plot.png)
+
+One challenge in creating the model was translating the graph into a physical display. In the dissolved oxygen elevation-profile graph, higher dissolved oxygen values are shown farther to the right on the x-axis. In the physical model, that pattern was represented with more white cotton for higher dissolved oxygen concentration and less cotton for lower dissolved oxygen concentration.
 
 The completed advanced elective model is shown below.
 
