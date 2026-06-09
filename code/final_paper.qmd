@@ -1,7 +1,8 @@
 ---
 title: "Dissolved Oxygen Patterns Across NCOS Sites"
 author: "Phoebe Dupa, Rebecca Martinez, and Shucan Zhao"
-subtitle: "Spring 2026"
+date: "10 June 2026"
+date-format: "D MMMM YYYY"
 format:
   pdf: 
     fig-width: 10
@@ -20,8 +21,6 @@ execute:
   message: false
   warning: false
 ---
-
-
 
 # Introduction
 
@@ -116,9 +115,33 @@ knitr::include_graphics("../images/median_do_through_time_by_elevation.png")
 
 Overall, dissolved oxygen differed across East Channel, Phelps Bridge, and Venoco Bridge. Dissolved oxygen differences across elevation codes were statistically significant at Venoco Bridge, but not at East Channel or Phelps Bridge.
 
-
 # Discussion
 
+The results show that dissolved oxygen conditions differed across the three NCOS sites. East Channel had the highest median dissolved oxygen, Phelps Bridge had the lowest median dissolved oxygen, and Venoco Bridge had the widest range of values (@fig-do-across-sites). Dissolved oxygen also differed by elevation code at Venoco Bridge, where median dissolved oxygen was lower at the bottom and higher at the middle and upper measurement positions (@fig-do-stratification; @fig-do-elevation-profile). East Channel and Phelps Bridge did not show significant dissolved oxygen differences across elevation codes.
+
+These results show where dissolved oxygen differed, but they do not identify one clear cause. The three sites are in different parts of NCOS, and they likely differ in water movement, vegetation, depth, salinity, and connection to other parts of the slough. Any of these factors could affect dissolved oxygen, but this analysis did not directly test which factor was most important. Because of that, the results should be interpreted as evidence of site-level and elevation-code differences in dissolved oxygen, not as proof of what caused those differences.
+
+The site-level pattern is useful because dissolved oxygen often varies within coastal wetland and lagoon systems. In the Carmel River Lagoon, dissolved oxygen varied across different branches of the estuary as hydrologic conditions and mouth state changed [@dawson2023]. Water quality in intermittently closed and open lagoons can also change with ocean connection, opening events, and mixing [@mayjor2023]. These studies support the idea that different parts of the same coastal wetland system can have different dissolved oxygen conditions.
+
+The Venoco Bridge pattern also fits with research on vertical dissolved oxygen differences in shallow lagoons and estuaries. When water is not fully mixed, bottom water can become lower in oxygen while upper water remains more oxygenated [@gale2006; @nezlin2009]. In this project, Venoco Bridge showed the clearest bottom-to-upper difference in dissolved oxygen. This could reflect stronger stratification at that site, but additional data on depth, salinity, water movement, and timing would be needed to confirm that.
+
+Dissolved oxygen matters because it is connected to aquatic habitat conditions. Low dissolved oxygen can reduce habitat suitability for fish and other nekton in marsh and wetland systems [@clark2025; @smith2003]. Oxygen conditions can also affect decomposition pathways and where invertebrates are active in shallow wetlands [@vanderlee2017]. This project did not measure fish, invertebrate responses, or decomposition, so it cannot make conclusions about biological effects. It can only show that dissolved oxygen conditions differed across the study sites and measurement positions.
+
+Other variables could help explain the dissolved oxygen patterns in this dataset. Temperature is relevant because warmer water holds less oxygen and can also increase biological respiration. Salinity is relevant because salinity differences can affect water density and mixing. Both temperature and salinity were included in the YSI water quality data. Weather variables, such as air temperature and precipitation, were included in the NOAA dataset and can provide context for changes across sampling dates. Other variables, such as water depth, vegetation, algae, wind, turbidity, and connection to the ocean or slough mouth, may also influence dissolved oxygen, but they would require additional field observations or more detailed site data.
+
+One limitation of this analysis is that the dataset used repeated monitoring observations rather than continuous dissolved oxygen sensor data. This means the analysis shows patterns across the available sampling dates, sites, and elevation codes, but it does not capture all short-term changes within a day. Dissolved oxygen in shallow wetlands can change over daily cycles because of light, photosynthesis, respiration, and temperature [@koopjakobsen2019; @smith2003; @reeder2011]. Time of day and sampling conditions could therefore affect the dissolved oxygen values measured during monitoring.
+
+Collecting dissolved oxygen data in a restored wetland also has practical challenges. Wetland conditions can change with water level, weather, vegetation, mud, and site access. Measurements also depend on reaching similar locations and water-column positions across sampling dates. These challenges matter because small differences in sampling depth, timing, or field conditions could affect dissolved oxygen values.
+
+Future work could build on this analysis by comparing dissolved oxygen more directly with temperature, salinity, water depth, season, and time of day. Continuous dissolved oxygen sensors would also help show daily oxygen cycles that repeated monitoring may miss. These additions would make it easier to determine whether the patterns observed here are related to mixing, stratification, seasonal change, or other site conditions.
+
 # Conclusion
+
+Dissolved oxygen differed across East Channel, Phelps Bridge, and Venoco Bridge during the 2024 and 2025 water years. East Channel had the highest median dissolved oxygen, Phelps Bridge had the lowest median dissolved oxygen, and Venoco Bridge had the widest range of values.
+
+Dissolved oxygen differences across elevation-code positions were strongest at Venoco Bridge. At this site, median dissolved oxygen was lower at the bottom and higher at the middle and upper measurement positions. East Channel and Phelps Bridge did not show significant dissolved oxygen differences across elevation codes.
+
+These findings show that dissolved oxygen conditions were not the same across all parts of NCOS. Continued monitoring, especially with added attention to temperature, salinity, water depth, season, and time of day, could help explain what drives these differences across the restored wetland.
+
 
 # References
