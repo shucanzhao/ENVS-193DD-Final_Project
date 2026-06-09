@@ -1,7 +1,7 @@
 ---
 title: "Dissolved Oxygen Patterns Across NCOS Sites"
 author: "Phoebe Dupa, Rebecca Martinez, and Shucan Zhao"
-date: "10 June 2026"
+date: 2026-06-10
 date-format: "D MMMM YYYY"
 format:
   pdf: 
@@ -69,7 +69,7 @@ knitr::include_graphics("../images/do_across_sites.png")
 
 A Kruskal-Wallis test showed a significant difference in dissolved oxygen across sites, $\chi^2$ = 45.67, df = 2, p < 0.001. Dunn post-hoc tests showed that all three site pairs were significantly different after adjustment: East Channel and Phelps Bridge, East Channel and Venoco Bridge, and Phelps Bridge and Venoco Bridge. The effect size for the site comparison was $\eta^2_H$ = 0.083, which was classified as moderate.
 
-Dissolved oxygen values also differed across elevation-code positions within each site. At East Channel, median dissolved oxygen was 6.66 mg/L at the bottom, 7.96 mg/L in the middle, and 7.17 mg/L at the upper position. At Phelps Bridge, median dissolved oxygen was 4.14 mg/L at the bottom, 3.63 mg/L in the middle, and 2.01 mg/L at the upper position. At Venoco Bridge, median dissolved oxygen was 4.31 mg/L at the bottom, 6.38 mg/L in the middle, and 7.62 mg/L at the upper position.
+Median dissolved oxygen values also varied across elevation-code positions within each site. At East Channel, median dissolved oxygen was 6.66 mg/L at the bottom, 7.96 mg/L in the middle, and 7.17 mg/L at the upper position. At Phelps Bridge, median dissolved oxygen was 4.14 mg/L at the bottom, 3.63 mg/L in the middle, and 2.01 mg/L at the upper position. At Venoco Bridge, median dissolved oxygen was 4.31 mg/L at the bottom, 6.38 mg/L in the middle, and 7.62 mg/L at the upper position.
 
 ```{r}
 #| label: fig-do-stratification
@@ -81,7 +81,7 @@ Dissolved oxygen values also differed across elevation-code positions within eac
 knitr::include_graphics("../images/do_stratification_by_site.png")
 ```
 
-@fig-do-stratification presents dissolved oxygen values by elevation code within each site. East Channel had median dissolved oxygen values of 6.66 mg/L, 7.96 mg/L, and 7.17 mg/L for elevation codes 0, 1, and 2. Phelps Bridge had median dissolved oxygen values of 4.14 mg/L, 3.63 mg/L, and 2.01 mg/L. Venoco Bridge had median dissolved oxygen values of 4.31 mg/L, 6.38 mg/L, and 7.62 mg/L.
+@fig-do-stratification presents the distribution of dissolved oxygen values by elevation code within each site. The figure shows the clearest separation among elevation-code positions at Venoco Bridge.
 
 Stratification difference was calculated as upper median dissolved oxygen minus bottom median dissolved oxygen. East Channel had a stratification difference of 0.50 mg/L. Phelps Bridge had a stratification difference of -2.13 mg/L. Venoco Bridge had a stratification difference of 3.31 mg/L.
 
@@ -95,7 +95,7 @@ Stratification difference was calculated as upper median dissolved oxygen minus 
 knitr::include_graphics("../images/do_elevation_profile_by_site.png")
 ```
 
-@fig-do-elevation-profile presents dissolved oxygen elevation profiles for the three sites. At East Channel, median dissolved oxygen was 6.66 mg/L at elevation code 0, 7.96 mg/L at elevation code 1, and 7.17 mg/L at elevation code 2. At Phelps Bridge, median dissolved oxygen was 4.14 mg/L at elevation code 0, 3.63 mg/L at elevation code 1, and 2.01 mg/L at elevation code 2. At Venoco Bridge, median dissolved oxygen was 4.31 mg/L at elevation code 0, 6.38 mg/L at elevation code 1, and 7.62 mg/L at elevation code 2.
+@fig-do-elevation-profile shows the median dissolved oxygen elevation profile for each site. Venoco Bridge had the strongest bottom-to-upper increase in median dissolved oxygen, while East Channel and Phelps Bridge showed smaller or less consistent elevation-code patterns.
 
 Within-site Kruskal-Wallis tests showed no significant dissolved oxygen difference across elevation codes at East Channel, $\chi^2$ = 1.11, df = 2, p = 0.574. Phelps Bridge also did not show a significant difference across elevation codes, $\chi^2$ = 3.02, df = 2, p = 0.221. Venoco Bridge showed a significant difference across elevation codes, $\chi^2$ = 28.64, df = 2, p < 0.001.
 
@@ -131,7 +131,7 @@ Other variables could help explain the dissolved oxygen patterns in this dataset
 
 One limitation of this analysis is that the dataset used repeated monitoring observations rather than continuous dissolved oxygen sensor data. This means the analysis shows patterns across the available sampling dates, sites, and elevation codes, but it does not capture all short-term changes within a day. Dissolved oxygen in shallow wetlands can change over daily cycles because of light, photosynthesis, respiration, and temperature [@koopjakobsen2019; @smith2003; @reeder2011]. Time of day and sampling conditions could therefore affect the dissolved oxygen values measured during monitoring.
 
-Collecting dissolved oxygen data in a restored wetland also has practical challenges. Wetland conditions can change with water level, weather, vegetation, mud, and site access. Measurements also depend on reaching similar locations and water-column positions across sampling dates. These challenges matter because small differences in sampling depth, timing, or field conditions could affect dissolved oxygen values.
+Collecting dissolved oxygen data in a restored wetland also has practical challenges. Wetland conditions can change with water level, weather, vegetation, mud, and site access. Measurements also depend on reaching similar locations and water-column positions across sampling dates. These challenges matter because small differences in sampling depth, timing, or field conditions could affect dissolved oxygen values. The NCOS monitoring report provides the broader restoration and monitoring context for interpreting these water quality patterns at the site [@rickard2024].
 
 Future work could build on this analysis by comparing dissolved oxygen more directly with temperature, salinity, water depth, season, and time of day. Continuous dissolved oxygen sensors would also help show daily oxygen cycles that repeated monitoring may miss. These additions would make it easier to determine whether the patterns observed here are related to mixing, stratification, seasonal change, or other site conditions.
 
