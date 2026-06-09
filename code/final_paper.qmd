@@ -10,6 +10,7 @@ format:
     include-in-header:
       text: |
         \usepackage{fvextra}
+        \usepackage{float}
         \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
 bibliography: references.bib
 csl: ecology.csl
@@ -19,6 +20,8 @@ execute:
   message: false
   warning: false
 ---
+
+
 
 # Introduction
 
@@ -51,6 +54,67 @@ The dataset included repeated monitoring observations across sampling dates rath
 
 # Results
 
+Dissolved oxygen differed across the three NCOS sites. East Channel had a mean dissolved oxygen value of 7.22 mg/L and a median of 7.28 mg/L. Phelps Bridge had a mean of 4.30 mg/L and a median of 3.70 mg/L. Venoco Bridge had a mean of 5.68 mg/L and a median of 5.98 mg/L. The middle 50% of dissolved oxygen values ranged from 5.44 to 9.65 mg/L at East Channel, 2.56 to 5.96 mg/L at Phelps Bridge, and 2.29 to 8.35 mg/L at Venoco Bridge.
+
+```{r}
+#| label: fig-do-across-sites
+#| fig-cap: "Dissolved oxygen across East Channel, Phelps Bridge, and Venoco Bridge. Individual points represent dissolved oxygen observations. Larger black points represent site medians, and vertical ranges show the first to third quartile range."
+#| fig-align: center
+#| out-width: "85%"
+#| fig-pos: "H"
+
+knitr::include_graphics("../images/do_across_sites.png")
+```
+
+@fig-do-across-sites presents dissolved oxygen values across East Channel, Phelps Bridge, and Venoco Bridge. East Channel had the highest median dissolved oxygen, Phelps Bridge had the lowest median dissolved oxygen, and Venoco Bridge had the widest spread of values.
+
+A Kruskal-Wallis test showed a significant difference in dissolved oxygen across sites, $\chi^2$ = 45.67, df = 2, p < 0.001. Dunn post-hoc tests showed that all three site pairs were significantly different after adjustment: East Channel and Phelps Bridge, East Channel and Venoco Bridge, and Phelps Bridge and Venoco Bridge. The effect size for the site comparison was $\eta^2_H$ = 0.083, which was classified as moderate.
+
+Dissolved oxygen values also differed across elevation-code positions within each site. At East Channel, median dissolved oxygen was 6.66 mg/L at the bottom, 7.96 mg/L in the middle, and 7.17 mg/L at the upper position. At Phelps Bridge, median dissolved oxygen was 4.14 mg/L at the bottom, 3.63 mg/L in the middle, and 2.01 mg/L at the upper position. At Venoco Bridge, median dissolved oxygen was 4.31 mg/L at the bottom, 6.38 mg/L in the middle, and 7.62 mg/L at the upper position.
+
+```{r}
+#| label: fig-do-stratification
+#| fig-cap: "Dissolved oxygen across bottom, middle, and upper elevation-code positions within each site. Boxplots show dissolved oxygen distributions, points show individual observations, and red diamonds show median values."
+#| fig-align: center
+#| out-width: "100%"
+#| fig-pos: "H"
+
+knitr::include_graphics("../images/do_stratification_by_site.png")
+```
+
+@fig-do-stratification presents dissolved oxygen values by elevation code within each site. East Channel had median dissolved oxygen values of 6.66 mg/L, 7.96 mg/L, and 7.17 mg/L for elevation codes 0, 1, and 2. Phelps Bridge had median dissolved oxygen values of 4.14 mg/L, 3.63 mg/L, and 2.01 mg/L. Venoco Bridge had median dissolved oxygen values of 4.31 mg/L, 6.38 mg/L, and 7.62 mg/L.
+
+Stratification difference was calculated as upper median dissolved oxygen minus bottom median dissolved oxygen. East Channel had a stratification difference of 0.50 mg/L. Phelps Bridge had a stratification difference of -2.13 mg/L. Venoco Bridge had a stratification difference of 3.31 mg/L.
+
+```{r}
+#| label: fig-do-elevation-profile
+#| fig-cap: "Dissolved oxygen elevation profiles by site. Points show individual dissolved oxygen observations, red points show median values, and red lines connect median values across elevation codes."
+#| fig-align: center
+#| out-width: "85%"
+#| fig-pos: "H"
+
+knitr::include_graphics("../images/do_elevation_profile_by_site.png")
+```
+
+@fig-do-elevation-profile presents dissolved oxygen elevation profiles for the three sites. At East Channel, median dissolved oxygen was 6.66 mg/L at elevation code 0, 7.96 mg/L at elevation code 1, and 7.17 mg/L at elevation code 2. At Phelps Bridge, median dissolved oxygen was 4.14 mg/L at elevation code 0, 3.63 mg/L at elevation code 1, and 2.01 mg/L at elevation code 2. At Venoco Bridge, median dissolved oxygen was 4.31 mg/L at elevation code 0, 6.38 mg/L at elevation code 1, and 7.62 mg/L at elevation code 2.
+
+Within-site Kruskal-Wallis tests showed no significant dissolved oxygen difference across elevation codes at East Channel, $\chi^2$ = 1.11, df = 2, p = 0.574. Phelps Bridge also did not show a significant difference across elevation codes, $\chi^2$ = 3.02, df = 2, p = 0.221. Venoco Bridge showed a significant difference across elevation codes, $\chi^2$ = 28.64, df = 2, p < 0.001.
+
+Because Venoco Bridge had a significant Kruskal-Wallis result, Dunn post-hoc tests were used to compare elevation-code pairs at that site. All three elevation-code pairs were significantly different after adjustment: bottom and middle, bottom and upper, and middle and upper. The effect size for the Venoco Bridge elevation-code comparison was $\eta^2_H$ = 0.105, which was classified as moderate.
+
+```{r}
+#| label: fig-do-through-time
+#| fig-cap: "Median dissolved oxygen through time by elevation code and site. Points represent median dissolved oxygen for each sampling date and site, and lines connect values within each site."
+#| fig-align: center
+#| out-width: "90%"
+#| fig-pos: "H"
+
+knitr::include_graphics("../images/median_do_through_time_by_elevation.png")
+```
+
+@fig-do-through-time presents median dissolved oxygen through time by elevation code and site. Median dissolved oxygen values varied across sampling dates, sites, and elevation codes during the 2024 and 2025 water years.
+
+Overall, dissolved oxygen differed across East Channel, Phelps Bridge, and Venoco Bridge. Dissolved oxygen differences across elevation codes were statistically significant at Venoco Bridge, but not at East Channel or Phelps Bridge.
 
 
 # Discussion
