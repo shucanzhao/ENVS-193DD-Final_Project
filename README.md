@@ -34,6 +34,8 @@ library(lubridate)
 ├── README.md
 ├── ENVS-193DD-Final_Project.Rproj
 ├── code
+│   ├── ecology.csl
+│   ├── references.bib
 │   ├── final_paper.pdf
 │   ├── final_paper.qmd
 │   ├── visual_draft_2.pdf

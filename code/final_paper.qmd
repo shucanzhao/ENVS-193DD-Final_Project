@@ -1,15 +1,18 @@
 ---
-title: "final paper"
+title: "Dissolved Oxygen Patterns Across NCOS Sites"
 author: "Phoebe Dupa, Rebecca Martinez, and Shucan Zhao"
 date: "Spring 2026"
 format:
   pdf: 
     fig-width: 10
     fig-height: 8
+    toc: true
     include-in-header:
       text: |
         \usepackage{fvextra}
         \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
+bibliography: references.bib
+csl: ecology.csl
 editor: source
 execute: 
   echo: false
@@ -17,3 +20,15 @@ execute:
   warning: false
 ---
 
+
+# Introduction
+
+# Methods
+
+# Results
+
+# Discussion
+
+# Conclusion
+
+# References
