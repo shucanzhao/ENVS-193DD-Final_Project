@@ -2,6 +2,8 @@
 title: "Dissolved Oxygen Patterns Across NCOS Sites"
 author: "Phoebe Dupa, Rebecca Martinez, and Shucan Zhao"
 date: 2026-06-10
+abstract: |
+  Dissolved oxygen (DO) is a key indicator of water quality in wetlands and estuaries because it controls habitat suitability for aquatic organisms and influences nutrient cycling. This study examined how DO varies across three sites: East Channel, Phelps Bridge, and Venoco Bridge, in the restored Devereux Slough wetland at the University of California, Santa Barbara North Campus Open Space (NCOS), and whether DO stratifies vertically within each site. Using NCOS water quality monitoring data from the 2024 and 2025 water years, we compared DO across sites and across vertical measurement positions using Kruskal-Wallis and Dunn post-hoc tests. DO differed significantly among all three sites, with East Channel highest, Phelps Bridge lowest, and Venoco Bridge most variable. Vertical stratification was statistically clear only at Venoco Bridge. These patterns suggest that DO conditions and vertical structure differ across the restored wetland in ways consistent with site hydrology and habitat.
 date-format: "D MMMM YYYY"
 format:
   pdf: 
