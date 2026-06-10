@@ -133,6 +133,8 @@ One limitation of this analysis is that the dataset used repeated monitoring obs
 
 Collecting dissolved oxygen data in a restored wetland also has practical challenges. Wetland conditions can change with water level, weather, vegetation, mud, and site access. Measurements also depend on reaching similar locations and water-column positions across sampling dates. These challenges matter because small differences in sampling depth, timing, or field conditions could affect dissolved oxygen values. The NCOS monitoring report provides the broader restoration and monitoring context for interpreting these water quality patterns at the site [@rickard2024].
 
+In addition, the elevation-code comparisons pooled measurements collected on many different dates, so the within-site differences reflect both vertical position and the conditions on each sampling date, rather than stratification measured at a single moment. Comparing bottom and upper DO from the same sampling event would give a more direct measure of stratification.
+
 Future work could build on this analysis by comparing dissolved oxygen more directly with temperature, salinity, water depth, season, and time of day. Continuous dissolved oxygen sensors would also help show daily oxygen cycles that repeated monitoring may miss. These additions would make it easier to determine whether the patterns observed here are related to mixing, stratification, seasonal change, or other site conditions.
 
 # Conclusion
